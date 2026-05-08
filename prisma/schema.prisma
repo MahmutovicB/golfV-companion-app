@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  maintenanceLogs MaintenanceLog[]
+  faultCodes      FaultCodeEntry[]
+  documents       Document[]
+  parts           Part[]
+  fuelEntries     FuelEntry[]
+}
+
+model MaintenanceLog {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  date        DateTime
+  mileageKm   Int
+  type        String
+  description String?
+  costEur     Float?
+  workshop    String?
+  nextDueKm   Int?
+  nextDueDate DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model FaultCodeEntry {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  code        String
+  description String
+  severity    String
+  aiDiagnosis String?
+  resolvedAt  DateTime?
+  mileageKm   Int?
+  createdAt   DateTime  @default(now())
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  category  String
+  fileUrl   String
+  mimeType  String
+  sizeBytes Int
+  createdAt DateTime @default(now())
+}
+
+model Part {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  name         String
+  oemNumber    String?
+  category     String
+  condition    String
+  pricePaidEur Float?
+  vendor       String?
+  installedAt  DateTime?
+  mileageKm    Int?
+  notes        String?
+  createdAt    DateTime  @default(now())
+}
+
+model FuelEntry {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  date          DateTime
+  mileageKm     Int
+  liters        Float
+  pricePerLiter Float
+  totalEur      Float
+  fullTank      Boolean  @default(true)
+  station       String?
+  createdAt     DateTime @default(now())
+}
